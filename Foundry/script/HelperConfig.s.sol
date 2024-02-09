@@ -1,12 +1,11 @@
 //SPDX-License-Identifier: MIT
-pragma solidity 0.8.20;
+pragma solidity 0.8.18;
 
 import {Script} from "forge-std/Script.sol";
 import {VRFCoordinatorV2Mock} from "@chainlink/contracts/src/v0.8/mocks/VRFCoordinatorV2Mock.sol";
 
 contract HelperConfig is Script {
     struct NetworkConfig {
-        uint256 entranceFee;
         address ProtocolMaintainanceFeeAddress;
         address charityDonationFeeAddress;
         uint256 interval;
@@ -29,13 +28,12 @@ contract HelperConfig is Script {
     // Testnet
     function getPolygonConfig() public view returns (NetworkConfig memory polygonNetworkConfig) {
         polygonNetworkConfig = NetworkConfig({
-            entranceFee: 0.01 ether,
             ProtocolMaintainanceFeeAddress: msg.sender,
             charityDonationFeeAddress: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266,
             interval: 180, //3min
             vrfCoordinatorV2: 0x7a1BaC17Ccc5b313516C5E16fb24f7659aA5ebed,
             keyHash: 0x4b09e658ed251bcafeebbc69400383d49f344ace09b9576fe248bb02c003fe9f,
-            subId: 0, // need to update this
+            subId: 7111, // from vrf
             callbackGasLimit: 500000
         });
     }
@@ -55,7 +53,6 @@ contract HelperConfig is Script {
         vm.stopBroadcast();
 
         anvilNetworkConfig = NetworkConfig({
-            entranceFee: 0.01 ether,
             ProtocolMaintainanceFeeAddress: msg.sender,
             charityDonationFeeAddress: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266,
             interval: 180, //3min

@@ -7,7 +7,7 @@ import {AutomationCompatibleInterface} from "@chainlink/contracts/src/v0.8/inter
 import {VRFConsumerBaseV2} from "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
 
 /**
- * @title Sweepstake Contract
+ * @title Sweepstake Decentralized Application
  * @author Capstone Project | Defi Talents
  * @notice This contract is defining Sweepstaking contract. The protocol should do the following:
  * 1. Enter Sweepstake function to enter the Sweepstake to win the prize pool.
@@ -74,24 +74,26 @@ contract Sweepstake is VRFConsumerBaseV2, AutomationCompatibleInterface {
     event FeeAddressChanged(address newFeeAddress);
     event RequestedSweepstakeWinner(uint256 indexed requestId);
     event RefundAddress(address indexed refunded);
+    event SweepstakeWinnerPicked(address winner);
 
     constructor(
-        uint256 _entranceFee,
-        address _ProtocolMaintainanceFeeAddress,
-        address _charityDonationFeeAddress,
-        uint256 _interval,
+        uint256 entranceFee,
+        address ProtocolMaintainanceFeeAddress,
+        address charityDonationFeeAddress,
+        uint256 interval,
         address vrfCoordinatorV2,
         bytes32 keyHash,
         uint64 subId,
         uint32 callbackGasLimit
     ) VRFConsumerBaseV2(vrfCoordinatorV2) {
+        i_vrfCoordinator = VRFCoordinatorV2Interface(vrfCoordinatorV2);
         i_keyHash = keyHash;
         i_subId = subId;
         i_callbackGasLimit = callbackGasLimit;
-        i_entranceFee = _entranceFee;
-        s_ProtocolMaintainanceFeeAddress = _ProtocolMaintainanceFeeAddress;
-        s_charityDonationFeeAddress = _charityDonationFeeAddress;
-        i_interval = _interval;
+        i_entranceFee = entranceFee;
+        s_ProtocolMaintainanceFeeAddress = ProtocolMaintainanceFeeAddress;
+        s_charityDonationFeeAddress = charityDonationFeeAddress;
+        i_interval = interval;
         s_sweepstakeStartTime = block.timestamp;
         s_sweepstakeState = SweepstakeState.OPEN;
     }
@@ -143,6 +145,7 @@ contract Sweepstake is VRFConsumerBaseV2, AutomationCompatibleInterface {
         if (!upkeepNeeded) {
             revert Sweepstake__UpkeepNotNeeded(uint256(s_sweepstakeState), s_players.length, address(this).balance);
         }
+        s_sweepstakeState = SweepstakeState.CALCULATING;
         uint256 requestId = i_vrfCoordinator.requestRandomWords(
             i_keyHash, i_subId, MINIMUM_REQUEST_CONFIRMATION, i_callbackGasLimit, NUM_WORDS
         );
@@ -160,6 +163,9 @@ contract Sweepstake is VRFConsumerBaseV2, AutomationCompatibleInterface {
         uint256 indexOfWinner = randomWords[0] % s_players.length;
         address payable winner = s_players[indexOfWinner];
         s_recentWinner = winner;
+        s_players = new address payable[](0);
+        s_sweepstakeStartTime = block.timestamp;
+        emit SweepstakeWinnerPicked(winner);
         (bool success,) = winner.call{value: winnerPrice}("");
         if (!success) {
             revert Sweepstake__TransferFailed();

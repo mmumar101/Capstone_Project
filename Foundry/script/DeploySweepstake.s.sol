@@ -1,16 +1,15 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.20;
+pragma solidity 0.8.18;
 
 import {Script} from "forge-std/Script.sol";
 import {Sweepstake} from "../src/Sweepstake.sol";
 import {HelperConfig} from "./HelperConfig.s.sol";
 
 contract DeploySweepstake is Script {
-    function run() external returns (Sweepstake) {
+    function run() external returns (Sweepstake, HelperConfig) {
         HelperConfig helperConfig = new HelperConfig();
 
         (
-            uint256 entranceFee,
             address ProtocolMaintainanceFeeAddress,
             address charityDonationFeeAddress,
             uint256 interval,
@@ -22,7 +21,6 @@ contract DeploySweepstake is Script {
 
         vm.startBroadcast();
         Sweepstake sweepstake = new Sweepstake(
-            entranceFee,
             ProtocolMaintainanceFeeAddress,
             charityDonationFeeAddress,
             interval,
@@ -32,6 +30,6 @@ contract DeploySweepstake is Script {
             callbackGasLimit
         );
         vm.stopBroadcast();
-        return sweepstake;
+        return (sweepstake, helperConfig);
     }
 }

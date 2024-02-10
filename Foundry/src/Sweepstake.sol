@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.18;
 
 import {VRFCoordinatorV2Interface} from "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 import {AutomationCompatibleInterface} from "@chainlink/contracts/src/v0.8/interfaces/AutomationCompatibleInterface.sol";
@@ -48,7 +48,7 @@ contract Sweepstake is VRFConsumerBaseV2, AutomationCompatibleInterface {
     uint256 public immutable i_interval;
     uint256 public s_sweepstakeStartTime;
     address public s_recentWinner;
-    uint256 public immutable i_entranceFee;
+    uint256 public immutable i_entranceFee = 0.01 ether;
     uint256 public totalFees = address(this).balance;
     uint256 public winnerPrice = (totalFees * 80) / 100;
     uint256 public charityDonation = (totalFees * 10) / 100;
@@ -69,7 +69,7 @@ contract Sweepstake is VRFConsumerBaseV2, AutomationCompatibleInterface {
     VRFCoordinatorV2Interface private immutable i_vrfCoordinator;
 
     /* Events */
-    event SweepstakeEntered(address payable[] newPlayer);
+    event SweepstakeEntered(address[] indexed newPlayer);
     event SweepstakeRefunded(address player);
     event FeeAddressChanged(address newFeeAddress);
     event RequestedSweepstakeWinner(uint256 indexed requestId);
@@ -77,7 +77,6 @@ contract Sweepstake is VRFConsumerBaseV2, AutomationCompatibleInterface {
     event SweepstakeWinnerPicked(address winner);
 
     constructor(
-        uint256 entranceFee,
         address ProtocolMaintainanceFeeAddress,
         address charityDonationFeeAddress,
         uint256 interval,
@@ -90,7 +89,6 @@ contract Sweepstake is VRFConsumerBaseV2, AutomationCompatibleInterface {
         i_keyHash = keyHash;
         i_subId = subId;
         i_callbackGasLimit = callbackGasLimit;
-        i_entranceFee = entranceFee;
         s_ProtocolMaintainanceFeeAddress = ProtocolMaintainanceFeeAddress;
         s_charityDonationFeeAddress = charityDonationFeeAddress;
         i_interval = interval;
@@ -98,7 +96,7 @@ contract Sweepstake is VRFConsumerBaseV2, AutomationCompatibleInterface {
         s_sweepstakeState = SweepstakeState.OPEN;
     }
 
-    function enterRaffle(address payable[] memory newPlayers) public payable {
+    function enterSweepstake(address[] memory newPlayers) public payable {
         if (msg.value != i_entranceFee * newPlayers.length) {
             revert Sweepstake__NotEnoughFeeToEnterSweepstake();
         }
@@ -118,7 +116,7 @@ contract Sweepstake is VRFConsumerBaseV2, AutomationCompatibleInterface {
         }
 
         for (uint256 i = 0; i < newPlayers.length; i++) {
-            s_players.push(newPlayers[i]);
+            s_players.push(payable((newPlayers[i])));
             addressToSweepsatkeId[newPlayers[i]] = sweepstakeId;
         }
         emit SweepstakeEntered(newPlayers);
@@ -213,5 +211,9 @@ contract Sweepstake is VRFConsumerBaseV2, AutomationCompatibleInterface {
         }
         // no such player found
         revert Sweepstake__PlayerAddressInvalid();
+    }
+
+    function getState() public view returns (SweepstakeState) {
+        return s_sweepstakeState;
     }
 }

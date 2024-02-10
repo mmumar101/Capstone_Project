@@ -21,6 +21,7 @@ function ResponsiveAppBar() {
     try {
       const accounts = await sdk?.connect();
       setAccount(accounts?.[0]);
+
     } catch (err) {
       console.warn(`failed to connect..`, err);
     }
@@ -84,14 +85,11 @@ function ResponsiveAppBar() {
             <Button sx={{ color: '#FFFFFF', border: '1px solid chartreuse' }}
               onClick={connect}
             >
-              {connected ? (
+              {connected && (
                 <div>
                   {account && `Connected account: ${account.slice(0, 6)}...${account.slice(-4)}`}
                 </div>
-              ) :
-                <div>
-                  Connect Wallet
-                </div>}
+              )}
             </Button>
 
           </div>

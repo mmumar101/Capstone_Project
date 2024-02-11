@@ -5,7 +5,7 @@ const Result = () => {
         <div style={{}}>
             {/* ########## RESULTS ########## */}
 
-            <h2>WINNERS ANNOUNCEMENT</h2>
+            <h2 className='bg-red-700'>WINNERS ANNOUNCEMENT</h2>
             <div style={{display:'flex', gap:'2rem', border:'2px', alignItems:'center'}}>
                 <div>
                     <h4>Previous Raffle Winners</h4>

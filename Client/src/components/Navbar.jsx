@@ -32,8 +32,8 @@ function ResponsiveAppBar() {
       <Container maxWidth="xl">
         <Toolbar disableGutters>
           <Link to="/" style={{ textDecoration: 'none' }}>
-            <div style={{ display: 'flex', paddingLeft: '8rem', gap: '1rem' }} >
-              <img height={35} width={35} src={Logo} alt="ReviFi Logo" ></img>
+            <div style={{ display: 'flex', paddingLeft: '8rem', gap: '1rem', alignItems:'center' }} >
+              <img height={50} width={50} src={Logo} alt="ReviFi Logo" ></img>
               <Typography
                 variant="h6"
                 noWrap

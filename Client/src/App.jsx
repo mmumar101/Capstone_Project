@@ -5,6 +5,7 @@ import ResponsiveAppBar from './components/Navbar'
 import Result from './pages/Result';
 import Governance from './pages/Governance';
 import PurchaseTicket from './pages/PurchaseTicket';
+import Footer from './components/Footer';
 
 function App() {
 
@@ -18,6 +19,7 @@ function App() {
         <Route path='/purchase-ticket' element={<PurchaseTicket />} />
 
       </Routes>
+      <Footer />
     </div>
   )
 }
